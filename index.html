@@ -1,190 +1,1238 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <title>Карточки с озвучкой</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    * { box-sizing: border-box; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тренажер: Разложение на простые множители</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+        body {
+            background: linear-gradient(135deg, #e0f7fa 0%, #fce4ec 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #333;
+        }
 
-    .card {
-      background: white;
-      color: #333;
-      padding: 24px;
-      border-radius: 16px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-      width: 90vw;
-      max-width: 400px;
-      aspect-ratio: 3 / 4;
-      text-align: center;
-      cursor: pointer;
-      transition: transform 0.2s ease;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      position: relative;
-    }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            position: relative;
+        }
 
-    .card:hover { transform: scale(1.02); }
+        h1 {
+            color: #6a11cb;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
+        }
 
-    .word {
-      font-size: 20px;
-      font-weight: bold;
-    }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            max-width: 600px;
+            line-height: 1.5;
+        }
 
-    .example {
-      font-size: 14px;
-      color: #666;
-      margin-top: 10px;
-    }
+        .mode-switch {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 10px 20px;
+            background-color: #f0f4ff;
+            border-radius: 50px;
+            border: 2px solid #42a5f5;
+        }
 
-    .translation,
-    .translation-example {
-      display: none;
-      font-size: 16px;
-      margin-top: 10px;
-    }
+        .switch-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1565c0;
+        }
 
-    .translation { color: green; }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
 
-    .sound-btn {
-      position: absolute;
-      top: 10px;
-      border: none;
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
-      font-size: 20px;
-      cursor: pointer;
-    }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
 
-    .sound-word {
-      right: 60px;
-      background: #4CAF50;
-      color: white;
-    }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
 
-    .sound-example {
-      right: 10px;
-      background: #2196F3;
-      color: white;
-    }
-  </style>
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #4caf50;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+
+        .task-block {
+            width: 100%;
+            padding: 25px;
+            border-radius: 18px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background-color: #f3e5f5;
+            border: 3px dashed #ab47bc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .original-number {
+            font-size: 5rem;
+            font-weight: bold;
+            color: #8e24aa;
+            text-shadow: 2px 2px 0px rgba(142, 36, 170, 0.1);
+            margin-bottom: 15px;
+        }
+
+        .division-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+            min-height: 60px;
+            flex-wrap: wrap;
+            font-size: 3.5rem;
+            color: #ff9800;
+            font-weight: bold;
+        }
+
+        .current-division {
+            background-color: #fff8e1;
+            padding: 15px 30px;
+            border-radius: 15px;
+            border: 3px solid #ffb74d;
+            min-width: 120px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .numbers-block {
+            background-color: #e8f5e9;
+            border: 3px solid #66bb6a;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            min-height: 120px;
+            width: 100%;
+            padding: 25px;
+            border-radius: 18px;
+        }
+
+        .number-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: none;
+            background-color: #42a5f5;
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .number-btn:hover {
+            transform: translateY(-5px);
+            background-color: #2196f3;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .number-btn.selected {
+            background-color: #ff9800;
+            transform: scale(1.1);
+            box-shadow: 0 0 0 4px rgba(255, 152, 0, 0.3);
+        }
+
+        .answer-block {
+            background-color: #e3f2fd;
+            border: 3px solid #42a5f5;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 25px;
+            border-radius: 18px;
+        }
+
+        .answer-expression {
+            font-size: 2.2rem;
+            color: #1565c0;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .answer-part {
+            display: inline-block;
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .multiply-sign {
+            color: #ff9800;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn:disabled {
+            background-color: #cccccc;
+            color: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .theory-btn {
+            background: linear-gradient(45deg, #9c27b0, #ba68c8);
+            color: white;
+        }
+
+        .theory-btn:hover {
+            background: linear-gradient(45deg, #7b1fa2, #ab47bc);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .clear-btn {
+            background: linear-gradient(45deg, #ff9800, #ffb74d);
+            color: white;
+        }
+
+        .clear-btn:hover:not(:disabled) {
+            background: linear-gradient(45deg, #f57c00, #ffa726);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .next-btn {
+            background: linear-gradient(45deg, #2196f3, #03a9f4);
+            color: white;
+        }
+
+        .next-btn:not(:disabled):hover {
+            background: linear-gradient(45deg, #1976d2, #0288d1);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .reset-btn {
+            background: linear-gradient(45deg, #9c27b0, #ba68c8);
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background: linear-gradient(45deg, #7b1fa2, #ab47bc);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .feedback {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 10px 20px;
+            border-radius: 50px;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .correct {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #2e7d32;
+            display: block;
+        }
+
+        .incorrect {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #c62828;
+            display: block;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            background-color: #f5f5f5;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 10px;
+            font-size: 1.1rem;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #6a11cb;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .instructions {
+            background-color: #fff3e0;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 10px;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #5d4037;
+            border-left: 5px solid #ff9800;
+        }
+
+        .mode-info {
+            background-color: #e8f5e9;
+            border-radius: 12px;
+            padding: 10px 15px;
+            margin-top: 5px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+
+        /* Модальное окно теории */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background-color: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .modal-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-content {
+            padding: 30px;
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #333;
+        }
+
+        .modal-section {
+            margin-bottom: 25px;
+        }
+
+        .modal-section h3 {
+            color: #6a11cb;
+            margin-bottom: 10px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-section p {
+            margin-bottom: 10px;
+        }
+
+        .example {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #4caf50;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lego-example {
+            background-color: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #2196f3;
+        }
+
+        .prime-numbers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .prime-number {
+            background-color: #4caf50;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .not-prime-number {
+            background-color: #f44336;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .explanation {
+            background-color: #fff3e0;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #ff9800;
+        }
+
+        /* Адаптивность для мобильных устройств */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                gap: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .original-number {
+                font-size: 4rem;
+            }
+            
+            .division-area {
+                font-size: 2.8rem;
+            }
+            
+            .current-division {
+                min-width: 100px;
+                padding: 12px 20px;
+            }
+            
+            .number-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+            
+            .answer-expression {
+                font-size: 1.8rem;
+            }
+            
+            .btn {
+                padding: 14px 24px;
+                font-size: 1.1rem;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .modal {
+                width: 95%;
+                max-height: 90vh;
+            }
+            
+            .modal-header {
+                padding: 20px;
+            }
+            
+            .modal-title {
+                font-size: 1.5rem;
+            }
+            
+            .modal-content {
+                padding: 20px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .original-number {
+                font-size: 3.5rem;
+            }
+            
+            .division-area {
+                font-size: 2.2rem;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .current-division {
+                min-width: 80px;
+                padding: 10px 15px;
+            }
+            
+            .number-btn {
+                width: 55px;
+                height: 55px;
+                font-size: 1.3rem;
+            }
+            
+            .answer-expression {
+                font-size: 1.5rem;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .modal-title {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1><i class="fas fa-calculator"></i> Тренажер: Разложение на простые множители</h1>
+        <p class="subtitle">Разбери число на простые множители, выбирая числа из нижнего блока</p>
+        
+        <div class="mode-switch">
+            <span class="switch-label">Обычный режим</span>
+            <label class="switch">
+                <input type="checkbox" id="modeSwitch">
+                <span class="slider"></span>
+            </label>
+            <span class="switch-label">Обучающий режим</span>
+        </div>
+        
+        <div class="mode-info" id="modeInfo">
+            <i class="fas fa-info-circle"></i> В обучающем режиме вы увидите текущее число после деления
+        </div>
+        
+        <div class="task-block">
+            <div class="original-number" id="originalNumber">28</div>
+            <div class="division-area" id="divisionArea">
+                <!-- Здесь будет показываться текущее число для деления -->
+            </div>
+        </div>
+        
+        <div class="numbers-block" id="numbersBlock">
+            <!-- Числа будут генерироваться скриптом -->
+        </div>
+        
+        <div class="answer-block" id="answerBlock">
+            <div class="answer-expression" id="answerExpression"></div>
+            <div class="feedback" id="feedback"></div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn theory-btn" id="theoryBtn">
+                <i class="fas fa-book"></i> Теория
+            </button>
+            <button class="btn reset-btn" id="resetBtn">
+                <i class="fas fa-redo"></i> Новая статистика
+            </button>
+            <button class="btn clear-btn" id="clearBtn" disabled>
+                <i class="fas fa-eraser"></i> Очистить
+            </button>
+            <button class="btn next-btn" id="nextBtn" disabled>
+                <i class="fas fa-arrow-right"></i> Далее
+            </button>
+        </div>
+        
+        <div class="instructions">
+            <i class="fas fa-lightbulb"></i> <strong>Как играть:</strong> Выбери числа из среднего блока, чтобы их произведение равнялось числу вверху. Используй только простые множители! В обучающем режиме ты увидишь текущее число после деления.
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="correctCount">0</div>
+                <div class="stat-label">Правильно</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalCount">0</div>
+                <div class="stat-label">Всего заданий</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="accuracy">0%</div>
+                <div class="stat-label">Точность</div>
+            </div>
+        </div>
+    </div>
 
-<div class="card" id="flashcard">
-  <button class="sound-btn sound-word" onclick="speakWord()" title="Произнести слово">🔊</button>
-  <button class="sound-btn sound-example" onclick="speakExample()" title="Произнести пример">🎧</button>
+    <!-- Модальное окно теории -->
+    <div class="modal-overlay" id="theoryModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-graduation-cap"></i> Разложение числа на простые множители
+                </div>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-content">
+                <div class="modal-section">
+                    <h3><i class="fas fa-puzzle-piece"></i> Что это такое?</h3>
+                    <div class="lego-example">
+                        <p>Представь, что у тебя есть любимая игрушка-конструктор (например, LEGO). У тебя есть одна большая фигура — например, красивый домик.</p>
+                        <p><strong>Разложение на простые множители</strong> — это как разобрать этот домик обратно на самые-самые маленькие детальки, из которых нельзя собрать ничего мельче. Эти мельчайшие детальки — <strong>простые числа</strong>.</p>
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <h3><i class="fas fa-magic"></i> Что такое простые числа?</h3>
+                    <p>Это как волшебные кирпичики. <strong>Простые числа — это числа, которые деляются без остатка только на себя и на 1.</strong></p>
+                    
+                    <div class="explanation">
+                        <p>Давай найдем их вместе:</p>
+                        <div class="prime-numbers">
+                            <span class="prime-number">2</span>
+                            <span class="prime-number">3</span>
+                            <span class="not-prime-number">4</span>
+                            <span class="prime-number">5</span>
+                            <span class="not-prime-number">6</span>
+                            <span class="prime-number">7</span>
+                            <span class="prime-number">11</span>
+                            <span class="prime-number">13</span>
+                        </div>
+                        <p><strong>2</strong> — делится на 1 и на 2. Простое!</p>
+                        <p><strong>3</strong> — делится на 1 и на 3. Тоже простое.</p>
+                        <p><strong>4</strong> — а вот здесь стоп! 4 делится не только на 1 и 4, но и на 2. Значит, 4 — <strong>не простое</strong> число. Его можно "разобрать" на 2 × 2.</p>
+                        <p><strong>5</strong> — делится только на 1 и 5. Простое.</p>
+                        <p><strong>6</strong> — делится на 1, 2, 3, 6. Не простое. Его можно "разобрать" на 2 × 3.</p>
+                    </div>
+                    
+                    <p>Простые числа: 2, 3, 5, 7, 11, 13, 17, 19... Они как атомы в математике.</p>
+                </div>
+                
+                <div class="modal-section">
+                    <h3><i class="fas fa-calculator"></i> Как разлагать? Давай на примере!</h3>
+                    
+                    <div class="example">
+                        <div class="example-title">
+                            <i class="fas fa-star"></i> Пример с числом 12
+                        </div>
+                        <p>1. <strong>Делится ли 12 на 2?</strong> Да! 12 : 2 = 6.</p>
+                        <p>Записываем: <strong>12 = 2 × 6</strong></p>
+                        <p>Теперь смотрим на 6. Это простое число? Нет. Значит, разбираем его дальше.</p>
+                        
+                        <p>2. <strong>Делится ли 6 на 2?</strong> Да! 6 : 2 = 3.</p>
+                        <p>Теперь наша запись стала длиннее: <strong>12 = 2 × 2 × 3</strong></p>
+                        <p>Смотрим на 3. Это простое число? Да! Оно волшебный кирпичик, его уже не разобрать.</p>
+                        
+                        <p><strong>Вот и всё! Мы разложили число 12 на простые множители: 12 = 2 × 2 × 3.</strong></p>
+                        <p>Это как сказать, что большой домик "12" собран из двух деталек "2" и одной детальки "3".</p>
+                    </div>
+                    
+                    <div class="example">
+                        <div class="example-title">
+                            <i class="fas fa-star"></i> Еще пример: число 15
+                        </div>
+                        <p>1. <strong>Делится ли 15 на 2?</strong> Нет (15:2=7 с остатком).</p>
+                        <p><strong>Делится ли 15 на 3?</strong> Да! 15 : 3 = 5.</p>
+                        <p>Записываем: <strong>15 = 3 × 5</strong></p>
+                        <p>2. 3 и 5 — оба простые. Готово!</p>
+                        <p><strong>15 = 3 × 5</strong></p>
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <h3><i class="fas fa-lightbulb"></i> Небольшая шпаргалка-помощник</h3>
+                    <div class="explanation">
+                        <p>Когда разлагаешь число, проверяй простые числа <strong>по порядку</strong>:</p>
+                        <p>1. <strong>Пробуй делить на 2</strong> — если число четное (оканчивается на 0, 2, 4, 6, 8).</p>
+                        <p>2. <strong>Не делится на 2? Пробуй на 3</strong> (сумма цифр должна делиться на 3: например, у 21 — 2+1=3, делится).</p>
+                        <p>3. <strong>Не делится на 3? Пробуй на 5</strong> — если число оканчивается на 0 или 5.</p>
+                        <p>4. Потом на 7, на 11 и так далее.</p>
+                    </div>
+                    
+                    <p><strong>Самый главный совет:</strong> Не торопись. Делай это <strong>спокойно и медленно</strong>. Можно даже шепотом проговаривать: "Двадцать... делится на два? Да, получается десять. Десять... делится на два? Да, получается пять. А пять — простое. Всё!"</p>
+                    
+                    <p>Математика — это не про скорость, а про понимание. Ты справишься!</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  <div class="word" id="card-word"></div>
-  <div class="example" id="card-example"></div>
-  <div class="translation" id="card-translation"></div>
-  <div class="translation-example" id="card-translation-example"></div>
-</div>
+    <script>
+        // База данных чисел для разложения (число и его простые множители)
+        const tasks = [
+            { number: 6, factors: [2, 3] },
+            { number: 8, factors: [2, 2, 2] },
+            { number: 9, factors: [3, 3] },
+            { number: 10, factors: [2, 5] },
+            { number: 12, factors: [2, 2, 3] },
+            { number: 14, factors: [2, 7] },
+            { number: 15, factors: [3, 5] },
+            { number: 16, factors: [2, 2, 2, 2] },
+            { number: 18, factors: [2, 3, 3] },
+            { number: 20, factors: [2, 2, 5] },
+            { number: 21, factors: [3, 7] },
+            { number: 22, factors: [2, 11] },
+            { number: 24, factors: [2, 2, 2, 3] },
+            { number: 25, factors: [5, 5] },
+            { number: 26, factors: [2, 13] },
+            { number: 27, factors: [3, 3, 3] },
+            { number: 28, factors: [2, 2, 7] },
+            { number: 30, factors: [2, 3, 5] }
+        ];
 
-<script>
-  const cards = [
-    { word: "Column", example: "Check the rebar in the column.", translation: "Колонна", exampleRu: "Проверьте арматуру в колонне." },
-    { word: "Beam", example: "Reinforce the beam with extra bars.", translation: "Балка", exampleRu: "Усильте балку дополнительной арматурой." },
-    { word: "Slab", example: "Place the mesh in the slab.", translation: "Перекрытие / плита", exampleRu: "Положите сетку в плиту перекрытия." },
-    { word: "Wall", example: "Tie the vertical rebars to the horizontal ones in the wall.", translation: "Стена", exampleRu: "Свяжите вертикальные прутки с горизонтальными в стене." },
-    { word: "Foundation", example: "The foundation needs more reinforcement.", translation: "Фундамент", exampleRu: "Фундамент требует усиления." },
-    { word: "Sump pit", example: "Be careful near the sump pit.", translation: "Приямок", exampleRu: "Будьте осторожны возле приямка." },
-    { word: "Stairwell", example: "Install the formwork for the stairwell.", translation: "Лестничная шахта", exampleRu: "Установите опалубку для лестничной шахты." },
-    { word: "Vertically", example: "Place the bars vertically.", translation: "Вертикально", exampleRu: "Уложите стержни вертикально." },
-    { word: "Horizontally", example: "Fix the horizontal mesh here.", translation: "Горизонтально", exampleRu: "Закрепите горизонтальную сетку здесь." },
-    { word: "Inside", example: "Rebar must be inside the formwork.", translation: "Внутри", exampleRu: "Арматура должна быть внутри опалубки." },
-    { word: "Outside", example: "Put tools outside after work.", translation: "Снаружи", exampleRu: "После работы уберите инструменты наружу." },
-    { word: "Above", example: "There’s a pipe above the slab.", translation: "Выше", exampleRu: "Над плитой есть труба." },
-    { word: "Below", example: "The water level is below the foundation.", translation: "Ниже", exampleRu: "Уровень воды ниже фундамента." },
-    { word: "Here", example: "Bring the rebar here.", translation: "Здесь", exampleRu: "Привезите арматуру сюда." },
-    { word: "There", example: "Leave the boards there.", translation: "Там", exampleRu: "Оставьте доски там." },
-    { word: "Rebar", example: "We need more rebar for the beams.", translation: "Арматура", exampleRu: "Нам нужна ещё арматура для балок." },
-    { word: "Binding wire", example: "Use binding wire to tie the bars.", translation: "Вязальная проволока", exampleRu: "Используйте вязальную проволоку для связывания прутков." },
-    { word: "Mesh", example: "Lay the mesh before pouring concrete.", translation: "Сетка", exampleRu: "Укладывайте сетку до заливки бетона." },
-    { word: "Spacer", example: "Put spacers between rebars.", translation: "Распорка", exampleRu: "Поставьте распорки между прутками арматуры." },
-    { word: "Formwork", example: "Check if the formwork is strong.", translation: "Опалубка", exampleRu: "Проверьте, прочная ли опалубка." },
-    { word: "Concrete", example: "Don’t pour concrete yet.", translation: "Бетон", exampleRu: "Не заливайте бетон пока." },
-    { word: "Spirit level", example: "Use the spirit level to check the beam.", translation: "Уровень", exampleRu: "Используйте уровень, чтобы проверить балку." },
-    { word: "Lift this up", example: "Please lift this rebar up.", translation: "Поднимите это", exampleRu: "Поднимите эту арматуру вверх." },
-    { word: "Check the level", example: "Check the level of the slab.", translation: "Проверьте уровень", exampleRu: "Проверьте уровень плиты." },
-    { word: "Do it again", example: "That’s not right. Do it again.", translation: "Сделайте снова", exampleRu: "Это неверно. Сделайте снова." },
-    { word: "Watch out!", example: "Watch out! The beam is falling!", translation: "Осторожно!", exampleRu: "Осторожно! Балка падает!" },
-    { word: "Fix it here", example: "Fix the mesh here and move on.", translation: "Закрепите здесь", exampleRu: "Закрепите сетку здесь и продолжайте." },
-    { word: "Let's start", example: "Let’s start pouring tomorrow.", translation: "Давайте начнём", exampleRu: "Давайте завтра начнём заливать." },
-    { word: "Well done", example: "Well done, team!", translation: "Хорошо сделано", exampleRu: "Хорошо поработали, ребята!" }
-  ];
+        // Статистика
+        let stats = {
+            correct: 0,
+            total: 0
+        };
 
-  function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  }
+        // Текущее задание и состояние
+        let currentTask;
+        let selectedNumbers = [];
+        let answerExpression = [];
+        let isLearningMode = false;
+        let currentDivision = 0;
 
-  const shuffledCards = shuffle([...cards]);
-  let currentCard = 0;
+        // DOM элементы
+        const originalNumberEl = document.getElementById('originalNumber');
+        const divisionAreaEl = document.getElementById('divisionArea');
+        const numbersBlockEl = document.getElementById('numbersBlock');
+        const answerExpressionEl = document.getElementById('answerExpression');
+        const answerBlockEl = document.getElementById('answerBlock');
+        const clearBtn = document.getElementById('clearBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const theoryBtn = document.getElementById('theoryBtn');
+        const feedbackEl = document.getElementById('feedback');
+        const correctCountEl = document.getElementById('correctCount');
+        const totalCountEl = document.getElementById('totalCount');
+        const accuracyEl = document.getElementById('accuracy');
+        const modeSwitch = document.getElementById('modeSwitch');
+        const modeInfo = document.getElementById('modeInfo');
+        const theoryModal = document.getElementById('theoryModal');
+        const closeModal = document.getElementById('closeModal');
 
-  const cardElement = document.getElementById("flashcard");
-  const wordEl = document.getElementById("card-word");
-  const exampleEl = document.getElementById("card-example");
-  const translationEl = document.getElementById("card-translation");
-  const exampleTransEl = document.getElementById("card-translation-example");
+        // Инициализация приложения
+        function init() {
+            loadStats();
+            setupEventListeners();
+            generateNewTask();
+        }
 
-  function showCard(index) {
-    const card = shuffledCards[index];
-    wordEl.textContent = card.word;
-    exampleEl.textContent = card.example;
-    translationEl.textContent = card.translation;
-    exampleTransEl.textContent = card.exampleRu;
+        // Загрузка статистики из localStorage
+        function loadStats() {
+            const savedStats = localStorage.getItem('factorizationStats');
+            if (savedStats) {
+                stats = JSON.parse(savedStats);
+            }
+            updateStatsDisplay();
+        }
 
-    translationEl.style.display = "none";
-    exampleTransEl.style.display = "none";
-  }
+        // Сохранение статистики в localStorage
+        function saveStats() {
+            localStorage.setItem('factorizationStats', JSON.stringify(stats));
+        }
 
-  // Озвучка слова
-  function speakWord() {
-    const text = wordEl.textContent;
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US';
-    speechSynthesis.speak(utterance);
-  }
+        // Обновление отображения статистики
+        function updateStatsDisplay() {
+            correctCountEl.textContent = stats.correct;
+            totalCountEl.textContent = stats.total;
+            const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+            accuracyEl.textContent = `${accuracy}%`;
+        }
 
-  // Озвучка примера
-  function speakExample() {
-    const text = exampleEl.textContent;
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US';
-    speechSynthesis.speak(utterance);
-  }
+        // Генерация нового задания
+        function generateNewTask() {
+            // Выбираем случайное задание
+            const randomIndex = Math.floor(Math.random() * tasks.length);
+            currentTask = {...tasks[randomIndex]};
+            
+            // Сбрасываем состояние
+            selectedNumbers = [];
+            answerExpression = [];
+            currentDivision = currentTask.number;
+            
+            // Обновляем отображение
+            originalNumberEl.textContent = currentTask.number;
+            answerExpressionEl.innerHTML = '';
+            feedbackEl.className = 'feedback';
+            feedbackEl.textContent = '';
+            feedbackEl.style.display = 'none';
+            answerBlockEl.style.borderColor = '#42a5f5';
+            answerBlockEl.style.backgroundColor = '#e3f2fd';
+            
+            // Обновляем область деления в зависимости от режима
+            updateDivisionArea();
+            
+            // Генерируем числа для выбора
+            generateNumberOptions();
+            
+            // Обновляем кнопки
+            clearBtn.disabled = true;
+            nextBtn.disabled = true;
+            
+            // Увеличиваем счетчик заданий
+            stats.total++;
+            saveStats();
+            updateStatsDisplay();
+        }
 
-  cardElement.addEventListener("click", (e) => {
-    if (e.target.classList.contains('sound-btn')) return;
+        // Обновление области деления
+        function updateDivisionArea() {
+            divisionAreaEl.innerHTML = '';
+            
+            if (isLearningMode && currentDivision !== currentTask.number) {
+                // В обучающем режиме показываем текущее число для деления
+                const numberSpan = document.createElement('span');
+                numberSpan.className = 'current-division';
+                numberSpan.textContent = currentDivision;
+                divisionAreaEl.appendChild(numberSpan);
+            }
+        }
 
-    if (translationEl.style.display === "none") {
-      translationEl.style.display = "block";
-      exampleTransEl.style.display = "block";
-    } else {
-      currentCard = (currentCard + 1) % shuffledCards.length;
-      showCard(currentCard);
-    }
-  });
+        // Генерация чисел для выбора
+        function generateNumberOptions() {
+            // Очищаем блок
+            numbersBlockEl.innerHTML = '';
+            
+            // Создаем массив чисел для выбора
+            let numberOptions = [];
+            
+            // Добавляем правильные множители
+            numberOptions.push(...currentTask.factors);
+            
+            // Добавляем несколько случайных чисел
+            const extraNumbersCount = 4 + Math.floor(Math.random() * 3); // 4-6 дополнительных чисел
+            const usedNumbersSet = new Set([...currentTask.factors]);
+            
+            for (let i = 0; i < extraNumbersCount; i++) {
+                let randomNum;
+                
+                // Генерируем случайное число от 2 до 15
+                do {
+                    randomNum = 2 + Math.floor(Math.random() * 14);
+                } while (usedNumbersSet.has(randomNum) || 
+                        numberOptions.includes(randomNum));
+                
+                numberOptions.push(randomNum);
+            }
+            
+            // Перемешиваем массив
+            shuffleArray(numberOptions);
+            
+            // Создаем кнопки для чисел
+            createNumberButtons(numberOptions);
+        }
 
-  // Показываем первую карточку
-  showCard(currentCard);
-</script>
+        // Создание кнопок с числами
+        function createNumberButtons(numbers) {
+            numbersBlockEl.innerHTML = '';
+            
+            numbers.forEach(num => {
+                const button = document.createElement('button');
+                button.className = 'number-btn';
+                button.textContent = num;
+                button.dataset.value = num;
+                
+                // Помечаем как выбранные те числа, которые уже были выбраны
+                if (selectedNumbers.includes(num)) {
+                    // Проверяем, сколько раз это число уже выбрано
+                    const selectedCount = selectedNumbers.filter(n => n === num).length;
+                    const answerCount = answerExpression.filter(n => n === num).length;
+                    
+                    // Если число в ответе, помечаем как выбранное
+                    if (answerCount > 0) {
+                        button.classList.add('selected');
+                    }
+                }
+                
+                button.addEventListener('click', () => selectNumber(num, button));
+                
+                numbersBlockEl.appendChild(button);
+            });
+        }
+
+        // Выбор числа
+        function selectNumber(num, button) {
+            // Добавляем число в выбранные
+            selectedNumbers.push(num);
+            answerExpression.push(num);
+            
+            // Помечаем кнопку как выбранную
+            button.classList.add('selected');
+            
+            // В обучающем режиме обновляем текущее число для деления
+            // (даже если число выбрано неправильно - показываем результат деления)
+            if (isLearningMode) {
+                if (currentDivision % num === 0) {
+                    currentDivision = currentDivision / num;
+                }
+                updateDivisionArea();
+            }
+            
+            // Обновляем выражение ответа
+            updateAnswerExpression();
+            
+            // Включаем кнопки
+            clearBtn.disabled = false;
+            nextBtn.disabled = false;
+        }
+
+        // Обновление выражения ответа
+        function updateAnswerExpression() {
+            answerExpressionEl.innerHTML = '';
+            
+            answerExpression.forEach((num, index) => {
+                // Добавляем число
+                const numSpan = document.createElement('span');
+                numSpan.className = 'answer-part';
+                numSpan.textContent = num;
+                answerExpressionEl.appendChild(numSpan);
+                
+                // Добавляем знак умножения (кроме последнего числа)
+                if (index < answerExpression.length - 1) {
+                    const multiplySpan = document.createElement('span');
+                    multiplySpan.className = 'multiply-sign';
+                    multiplySpan.textContent = '×';
+                    answerExpressionEl.appendChild(multiplySpan);
+                }
+            });
+            
+            // Если чисел нет, показываем подсказку
+            if (answerExpression.length === 0) {
+                answerExpressionEl.innerHTML = '<span style="color:#aaa; font-size:1.5rem;">Выберите числа из блока выше</span>';
+            }
+        }
+
+        // Проверка ответа и переход к следующему заданию
+        function checkAndNext() {
+            // В обучающем режиме проверяем, что разложение завершено
+            if (isLearningMode && currentDivision !== 1) {
+                feedbackEl.textContent = 'Разложение не завершено! Попробуй другие множители.';
+                feedbackEl.className = 'feedback incorrect';
+                feedbackEl.style.display = 'block';
+                answerBlockEl.style.borderColor = '#f44336';
+                answerBlockEl.style.backgroundColor = '#ffebee';
+                return;
+            }
+            
+            // Вычисляем произведение выбранных чисел
+            const product = selectedNumbers.reduce((acc, num) => acc * num, 1);
+            
+            // Сортируем множители для сравнения
+            const sortedSelected = [...selectedNumbers].sort((a, b) => a - b);
+            const sortedCorrect = [...currentTask.factors].sort((a, b) => a - b);
+            
+            // Проверяем правильность
+            const isCorrect = product === currentTask.number && 
+                              JSON.stringify(sortedSelected) === JSON.stringify(sortedCorrect);
+            
+            // Показываем результат
+            feedbackEl.style.display = 'block';
+            
+            if (isCorrect) {
+                feedbackEl.textContent = 'Правильно! Молодец!';
+                feedbackEl.className = 'feedback correct';
+                answerBlockEl.style.borderColor = '#4caf50';
+                answerBlockEl.style.backgroundColor = '#e8f5e9';
+                
+                // Увеличиваем счетчик правильных ответов
+                stats.correct++;
+                saveStats();
+                updateStatsDisplay();
+                
+                // Через 1 секунду переходим к следующему заданию
+                setTimeout(() => {
+                    generateNewTask();
+                }, 1000);
+                
+            } else {
+                feedbackEl.textContent = 'Еще не совсем правильно. Попробуй снова!';
+                feedbackEl.className = 'feedback incorrect';
+                answerBlockEl.style.borderColor = '#f44336';
+                answerBlockEl.style.backgroundColor = '#ffebee';
+                
+                // Сбрасываем ответ через 1.5 секунды
+                setTimeout(() => {
+                    clearAnswer();
+                }, 1500);
+            }
+            
+            // Блокируем кнопки на время показа результата
+            clearBtn.disabled = true;
+            nextBtn.disabled = true;
+        }
+
+        // Очистка ответа
+        function clearAnswer() {
+            selectedNumbers = [];
+            answerExpression = [];
+            
+            if (isLearningMode) {
+                // В обучающем режиме сбрасываем деление
+                currentDivision = currentTask.number;
+                updateDivisionArea();
+            }
+            
+            // Пересоздаем кнопки (снимаем выделение)
+            generateNumberOptions();
+            
+            // Обновляем отображение
+            updateAnswerExpression();
+            feedbackEl.className = 'feedback';
+            feedbackEl.textContent = '';
+            feedbackEl.style.display = 'none';
+            answerBlockEl.style.borderColor = '#42a5f5';
+            answerBlockEl.style.backgroundColor = '#e3f2fd';
+            
+            // Блокируем кнопки
+            clearBtn.disabled = true;
+            nextBtn.disabled = true;
+        }
+
+        // Переключение режима
+        function toggleMode() {
+            isLearningMode = modeSwitch.checked;
+            
+            if (isLearningMode) {
+                modeInfo.innerHTML = '<i class="fas fa-info-circle"></i> В обучающем режиме вы видите текущее число после деления. Попробуй разные числа!';
+                modeInfo.style.backgroundColor = '#e8f5e9';
+                modeInfo.style.borderLeftColor = '#4caf50';
+                
+                // Сбрасываем текущее деление
+                currentDivision = currentTask.number;
+                updateDivisionArea();
+            } else {
+                modeInfo.innerHTML = '<i class="fas fa-info-circle"></i> В обычном режиме выберите все множители сразу и нажмите "Далее" для проверки.';
+                modeInfo.style.backgroundColor = '#e3f2fd';
+                modeInfo.style.borderLeftColor = '#2196f3';
+                
+                // Скрываем область деления
+                divisionAreaEl.innerHTML = '';
+            }
+            
+            // Пересоздаем кнопки
+            generateNumberOptions();
+        }
+
+        // Показать/скрыть модальное окно теории
+        function toggleTheoryModal() {
+            theoryModal.classList.toggle('active');
+        }
+
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            nextBtn.addEventListener('click', checkAndNext);
+            
+            clearBtn.addEventListener('click', clearAnswer);
+            
+            resetBtn.addEventListener('click', () => {
+                if (confirm('Начать статистику заново? Это сбросит все ваши результаты.')) {
+                    stats = { correct: 0, total: 0 };
+                    saveStats();
+                    updateStatsDisplay();
+                    generateNewTask();
+                }
+            });
+            
+            theoryBtn.addEventListener('click', toggleTheoryModal);
+            
+            closeModal.addEventListener('click', toggleTheoryModal);
+            
+            // Закрытие модального окна при клике на фон
+            theoryModal.addEventListener('click', (e) => {
+                if (e.target === theoryModal) {
+                    toggleTheoryModal();
+                }
+            });
+            
+            // Закрытие модального окна клавишей ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && theoryModal.classList.contains('active')) {
+                    toggleTheoryModal();
+                }
+            });
+            
+            modeSwitch.addEventListener('change', toggleMode);
+        }
+
+        // Вспомогательная функция: перемешивание массива
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Запуск приложения
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
 </body>
 </html>

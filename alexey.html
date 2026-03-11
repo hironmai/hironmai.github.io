@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Тренажер: This, That, These, Those</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #bbdefb 0%, #ffe0b2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            position: relative;
+        }
+
+        h1 {
+            color: #1565c0;
+            text-align: center;
+            font-size: 2.2rem;
+            background: linear-gradient(45deg, #0d47a1, #f57c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #555;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            max-width: 600px;
+            line-height: 1.5;
+        }
+
+        /* Прогресс-бар и счётчик */
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            background-color: #f5f5f5;
+            border-radius: 50px;
+            padding: 10px 20px;
+            margin-bottom: 5px;
+            border: 2px solid #ffb74d;
+        }
+
+        .progress {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background-color: #1976d2;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .score {
+            background-color: #4caf50;
+            color: white;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .mission-counter {
+            background-color: #ff9800;
+            color: white;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: bold;
+        }
+
+        /* Основной блок с заданием */
+        .task-block {
+            width: 100%;
+            padding: 30px 20px;
+            border-radius: 30px;
+            text-align: center;
+            background-color: #e1f5fe;
+            border: 4px solid #29b6f6;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .russian-sentence {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #01579b;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .blank-space {
+            display: inline-block;
+            min-width: 120px;
+            background-color: #fff9c4;
+            border: 5px dashed #ffb74d;
+            border-radius: 20px;
+            padding: 5px 15px;
+            color: #e65100;
+            font-size: 2.8rem;
+            line-height: 1.3;
+            margin: 0 8px;
+            box-shadow: 0 4px 0 #b0bec5;
+            vertical-align: middle;
+        }
+
+        /* Кнопки выбора местоимений */
+        .choice-panel {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .choice-btn {
+            width: 130px;
+            height: 130px;
+            border-radius: 30px 15px 30px 15px;
+            border: none;
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 0 #9e9e9e, 0 10px 20px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-shadow: 0 2px 0 #424242;
+        }
+
+        .choice-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 #9e9e9e, 0 5px 12px rgba(0,0,0,0.2);
+        }
+
+        .choice-btn:disabled {
+            opacity: 0.5;
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #757575;
+            pointer-events: none;
+        }
+
+        .btn-this { background-color: #4caf50; border-bottom: 8px solid #2e7d32; }
+        .btn-that { background-color: #ff9800; border-bottom: 8px solid #b26a00; }
+        .btn-these { background-color: #29b6f6; border-bottom: 8px solid #0277bd; }
+        .btn-those { background-color: #ab47bc; border-bottom: 8px solid #6a1b9a; }
+
+        .choice-btn:hover:not(:disabled) {
+            filter: brightness(1.05);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 0 #757575, 0 12px 20px rgba(0,0,0,0.25);
+        }
+
+        /* Блок обратной связи */
+        .feedback-block {
+            width: 100%;
+            background-color: #fff8e1;
+            border: 3px solid #ffb74d;
+            border-radius: 40px;
+            padding: 20px;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .feedback-message {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .feedback-correct {
+            color: #2e7d32;
+        }
+
+        .feedback-incorrect {
+            color: #c62828;
+        }
+
+        .feedback-hint {
+            font-size: 1.3rem;
+            color: #f57c00;
+            background-color: #fff3e0;
+            padding: 8px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            border: 2px dashed #ffb74d;
+        }
+
+        /* Кнопки управления */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 60px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            border-bottom: 5px solid #757575;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            border-bottom-width: 2px;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            transform: translateY(2px);
+        }
+
+        .next-btn {
+            background: linear-gradient(45deg, #42a5f5, #1976d2);
+            color: white;
+            border-bottom-color: #0d47a1;
+        }
+
+        .theory-btn {
+            background: linear-gradient(45deg, #ff9800, #f57c00);
+            color: white;
+            border-bottom-color: #b26a00;
+        }
+
+        .reset-btn {
+            background: linear-gradient(45deg, #9c27b0, #7b1fa2);
+            color: white;
+            border-bottom-color: #4a0072;
+        }
+
+        /* Блок с подсказкой-шпаргалкой */
+        .hint-section {
+            width: 100%;
+            background-color: #e8eaf6;
+            border-radius: 20px;
+            padding: 15px;
+            border: 3px solid #3f51b5;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        .hint-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: white;
+            padding: 8px 20px;
+            border-radius: 40px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-size: 1.2rem;
+        }
+
+        .hint-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .color-this { background-color: #4caf50; }
+        .color-that { background-color: #ff9800; }
+        .color-these { background-color: #29b6f6; }
+        .color-those { background-color: #ab47bc; }
+
+        .hint-text {
+            font-weight: 600;
+        }
+
+        .small-note {
+            color: #757575;
+            font-size: 0.9rem;
+        }
+
+        /* Статистика */
+        .stats-panel {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            background-color: #eceff1;
+            border-radius: 16px;
+            padding: 15px;
+            margin-top: 5px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #0d47a1;
+        }
+
+        .stat-label {
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        /* Модальное окно теории */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background-color: white;
+            border-radius: 30px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            background: linear-gradient(45deg, #1976d2, #ff9800);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 30px 30px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2.5rem;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        .modal-content {
+            padding: 30px;
+            font-size: 1.2rem;
+            line-height: 1.6;
+        }
+
+        .example-box {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 8px solid #ff9800;
+        }
+
+        .example-box h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+            font-size: 1.4rem;
+        }
+
+        .highlight {
+            background-color: #fff9c4;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+            border: 2px dashed #ffb74d;
+        }
+
+        .picture-hint {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .picture-item {
+            text-align: center;
+        }
+
+        .picture-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #4caf50;
+            margin-bottom: 10px;
+            border: 5px solid #2e7d32;
+        }
+
+        .picture-circle.orange { background-color: #ff9800; border-color: #b26a00; }
+        .picture-circle.blue { background-color: #29b6f6; border-color: #0277bd; }
+        .picture-circle.purple { background-color: #ab47bc; border-color: #6a1b9a; }
+
+        @media (max-width: 700px) {
+            .container { padding: 20px; }
+            h1 { font-size: 1.8rem; }
+            .russian-sentence { font-size: 1.8rem; }
+            .blank-space { font-size: 2.2rem; min-width: 90px; }
+            .choice-btn { width: 100px; height: 100px; font-size: 2rem; }
+            .feedback-message { font-size: 1.5rem; }
+            .stats-header { flex-direction: column; gap: 10px; }
+        }
+
+        @media (max-width: 450px) {
+            .choice-btn { width: 70px; height: 70px; font-size: 1.5rem; }
+            .btn { padding: 12px 18px; font-size: 1rem; }
+            .hint-item { font-size: 1rem; padding: 5px 12px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1><i class="fas fa-language"></i> Тренажёр: This, That, These, Those</h1>
+    <p class="subtitle">Вставь правильное слово — показываем пальцем на близкое или далёкое</p>
+
+    <!-- Шапка со статистикой и прогрессом -->
+    <div class="stats-header">
+        <div class="progress">
+            <span class="badge" id="current-mission">1/20</span>
+            <span class="score" id="correct-score">✓ 0</span>
+        </div>
+        <div class="mission-counter" id="total-attempts">Всего: 0</div>
+    </div>
+
+    <!-- Блок с заданием -->
+    <div class="task-block">
+        <div class="russian-sentence" id="russian-task">
+            <!-- сюда подставится предложение -->
+        </div>
+    </div>
+
+    <!-- Кнопки-местоимения (4 штуки) -->
+    <div class="choice-panel">
+        <button class="choice-btn btn-this" id="btnThis">This</button>
+        <button class="choice-btn btn-that" id="btnThat">That</button>
+        <button class="choice-btn btn-these" id="btnThese">These</button>
+        <button class="choice-btn btn-those" id="btnThose">Those</button>
+    </div>
+
+    <!-- Блок обратной связи -->
+    <div class="feedback-block" id="feedbackBlock">
+        <div class="feedback-message" id="feedbackMessage">👆 Нажми на кнопку!</div>
+        <div class="feedback-hint" id="feedbackHint"></div>
+    </div>
+
+    <!-- Кнопки управления -->
+    <div class="controls">
+        <button class="btn theory-btn" id="theoryBtn"><i class="fas fa-graduation-cap"></i> Шпаргалка</button>
+        <button class="btn reset-btn" id="resetBtn"><i class="fas fa-redo-alt"></i> Сброс</button>
+        <button class="btn next-btn" id="nextBtn" disabled><i class="fas fa-arrow-right"></i> Дальше</button>
+    </div>
+
+    <!-- Шпаргалка-подсказка всегда перед глазами -->
+    <div class="hint-section">
+        <div class="hint-item"><span class="hint-color color-this"></span><span class="hint-text">This — этот (рядом, один)</span></div>
+        <div class="hint-item"><span class="hint-color color-these"></span><span class="hint-text">These — эти (рядом, много)</span></div>
+        <div class="hint-item"><span class="hint-color color-that"></span><span class="hint-text">That — тот (далеко, один)</span></div>
+        <div class="hint-item"><span class="hint-color color-those"></span><span class="hint-text">Those — те (далеко, много)</span></div>
+    </div>
+
+    <!-- Статистика правильных ответов -->
+    <div class="stats-panel">
+        <div class="stat-item">
+            <div class="stat-value" id="statCorrect">0</div>
+            <div class="stat-label">Правильно</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="statTotal">0</div>
+            <div class="stat-label">Попыток</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="statAccuracy">0%</div>
+            <div class="stat-label">Точность</div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно теории (шпаргалка) -->
+<div class="modal-overlay" id="theoryModal">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title"><i class="fas fa-lightbulb"></i> Секреты указателей</div>
+            <button class="modal-close" id="closeModal">&times;</button>
+        </div>
+        <div class="modal-content">
+            <div class="example-box">
+                <h4>🔍 Главное правило — "палец"</h4>
+                <p>Представь, что ты показываешь пальцем. От того, <strong>куда</strong> ты показываешь и <strong>сколько</strong> предметов, зависит слово.</p>
+            </div>
+            <div class="picture-hint">
+                <div class="picture-item">
+                    <div class="picture-circle"></div>
+                    <span class="highlight">This</span> — рядом, 1
+                </div>
+                <div class="picture-item">
+                    <div class="picture-circle blue"></div>
+                    <span class="highlight">These</span> — рядом, >1
+                </div>
+                <div class="picture-item">
+                    <div class="picture-circle orange"></div>
+                    <span class="highlight">That</span> — далеко, 1
+                </div>
+                <div class="picture-item">
+                    <div class="picture-circle purple"></div>
+                    <span class="highlight">Those</span> — далеко, >1
+                </div>
+            </div>
+            <div class="example-box">
+                <h4>📦 Примеры</h4>
+                <p><i class="fas fa-hand-point-up"></i> <strong>This</strong> apple (яблоко у тебя в руке) — зелёное.</p>
+                <p><i class="fas fa-hand-point-right"></i> <strong>That</strong> apple (яблоко на столе у учителя) — красное.</p>
+                <p><i class="fas fa-hand-point-up"></i> <strong>These</strong> apples (яблоки в твоей корзине) — вкусные.</p>
+                <p><i class="fas fa-hand-point-right"></i> <strong>Those</strong> apples (яблоки вон на том дереве) — высоко.</p>
+            </div>
+            <div class="example-box">
+                <h4>🧠 Хитрый приём</h4>
+                <p>This/These — буква "i" близко к началу алфавита, как и предметы близко к тебе.</p>
+                <p>That/Those — буква "a" дальше, как и предметы далеко.</p>
+                <p>This/That — заканчиваются на "is" (один), These/Those — на "se" (много).</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ========== БАЗА ПРЕДЛОЖЕНИЙ (больше 40) ==========
+        const sentencesDB = [
+            { text: "___ книга (лежит прямо передо мной) очень интересная.", correct: "this" },
+            { text: "Посмотри на ___ птиц (вон там, на крыше)!", correct: "those" },
+            { text: "___ яблоки (в моей корзине) сладкие.", correct: "these" },
+            { text: "___ дом (вдалеке) кажется заброшенным.", correct: "that" },
+            { text: "___ ручка (у меня в руке) не пишет.", correct: "this" },
+            { text: "___ горы (на горизонте) очень красивые.", correct: "those" },
+            { text: "___ конфеты (в этой вазе) вкусные.", correct: "these" },
+            { text: "___ озеро (вон там, за полем) глубокое.", correct: "that" },
+            { text: "___ котёнок (сидит у меня на коленях) пушистый.", correct: "this" },
+            { text: "Убери ___ игрушки (которые разбросаны тут)!", correct: "these" },
+            { text: "___ облако (вон то, похожее на дракона) тёмное.", correct: "that" },
+            { text: "___ марки (в моём альбоме) старинные.", correct: "these" },
+            { text: "___ солдатики (на том столе) классные!", correct: "those" },
+            { text: "___ пирожное (которое я держу) выглядит вкусно.", correct: "this" },
+            { text: "___ деревья (вон у реки) высокие.", correct: "those" },
+            { text: "___ машина (припаркована рядом с нами) быстрая.", correct: "this" },
+            { text: "Сними ___ часы (у тебя на руке), они мешают.", correct: "these" },
+            { text: "___ здание (в центре города) — музей.", correct: "that" },
+            { text: "___ тарелки (грязные, на столе) надо помыть.", correct: "these" },
+            { text: "___ флаг (развевается далеко на башне) наш.", correct: "that" },
+            { text: "___ ягоды (в этом лукошке) лесные.", correct: "these" },
+            { text: "___ следы (на песке вдали) медвежьи?", correct: "those" },
+            { text: "___ карандаш (сейчас в моей руке) сломан.", correct: "this" },
+            { text: "___ остров (далеко в море) необитаемый.", correct: "that" },
+            { text: "___ кнопки (на пульте передо мной) разноцветные.", correct: "these" },
+            { text: "___ огни (вон там, у леса) чьи-то фары.", correct: "those" },
+            { text: "___ письмо (я держу в руках) от бабушки.", correct: "this" },
+            { text: "___ фотографии (на той стене) чёрно-белые.", correct: "those" },
+            { text: "___ мышка (рядом с клавиатурой) проводная.", correct: "this" },
+            { text: "___ листья (под ногами) шуршат.", correct: "these" },
+            { text: "___ радуга (вон там, после дождя) яркая.", correct: "that" },
+            { text: "___ цветы (в этой вазе) пахнут сиренью.", correct: "these" },
+            { text: "Потрогай ___ воду (в этой бутылке) — тёплая.", correct: "this" },
+            { text: "___ облака (те, далёкие) похожи на вату.", correct: "those" },
+            { text: "___ камешек (у меня в ладони) гладкий.", correct: "this" },
+            { text: "___ окна (в том доме) светятся.", correct: "those" },
+            { text: "___ батарейки (лежат здесь) сели.", correct: "these" },
+            { text: "___ дорога (уходит за горизонт) ведёт в лес.", correct: "that" },
+            { text: "___ монета (которую я нашёл) старая.", correct: "this" },
+            { text: "___ пазлы (на том шкафу) пыльные.", correct: "those" },
+            { text: "___ кубики (под стулом) мешают пройти.", correct: "these" },
+            { text: "___ звезда (самая яркая на небе) — Полярная.", correct: "that" },
+            { text: "___ наклейка (на моей тетради) светится.", correct: "this" },
+            { text: "___ страницы (в книге, что ты держишь) пожелтели.", correct: "these" },
+            { text: "___ самолёт (в небе, маленький) летит низко.", correct: "that" },
+            { text: "___ бутерброд (у меня в руке) с сыром.", correct: "this" },
+            { text: "___ орехи (в той вазочке) грецкие.", correct: "those" },
+        ];
+
+        // ========== СОСТОЯНИЕ ==========
+        let currentIndex = 0;
+        let questions = [];          // 20 случайных вопросов
+        let currentQuestion = null;
+        let answered = false;        // ответили ли уже
+        let stats = {
+            correct: 0,
+            total: 0
+        };
+
+        // DOM-элементы
+        const russianTask = document.getElementById('russian-task');
+        const btnThis = document.getElementById('btnThis');
+        const btnThat = document.getElementById('btnThat');
+        const btnThese = document.getElementById('btnThese');
+        const btnThose = document.getElementById('btnThose');
+        const nextBtn = document.getElementById('nextBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const theoryBtn = document.getElementById('theoryBtn');
+        const feedbackMessage = document.getElementById('feedbackMessage');
+        const feedbackHint = document.getElementById('feedbackHint');
+        const currentMissionSpan = document.getElementById('current-mission');
+        const correctScoreSpan = document.getElementById('correct-score');
+        const totalAttemptsSpan = document.getElementById('total-attempts');
+        const statCorrect = document.getElementById('statCorrect');
+        const statTotal = document.getElementById('statTotal');
+        const statAccuracy = document.getElementById('statAccuracy');
+        const theoryModal = document.getElementById('theoryModal');
+        const closeModal = document.getElementById('closeModal');
+
+        const allButtons = [btnThis, btnThat, btnThese, btnThose];
+
+        // ========== ВСПОМОГАТЕЛЬНЫЕ ==========
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // Загрузить статистику из localStorage
+        function loadStats() {
+            const saved = localStorage.getItem('pronounStatsAlexey');
+            if (saved) {
+                try {
+                    stats = JSON.parse(saved);
+                } catch (e) { /* ignore */ }
+            }
+            updateStatsUI();
+        }
+
+        function saveStats() {
+            localStorage.setItem('pronounStatsAlexey', JSON.stringify(stats));
+        }
+
+        function updateStatsUI() {
+            correctScoreSpan.textContent = `✓ ${stats.correct}`;
+            totalAttemptsSpan.textContent = `Всего: ${stats.total}`;
+            statCorrect.textContent = stats.correct;
+            statTotal.textContent = stats.total;
+            const acc = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+            statAccuracy.textContent = acc + '%';
+        }
+
+        // Новая выборка 20 вопросов
+        function pickQuestions() {
+            const shuffled = shuffleArray([...sentencesDB]);
+            questions = shuffled.slice(0, 20);
+        }
+
+        // Показать текущий вопрос
+        function displayCurrent() {
+            if (!questions.length) pickQuestions();
+            currentQuestion = questions[currentIndex];
+            // Замена ___ на красивый блок
+            const parts = currentQuestion.text.split('___');
+            if (parts.length === 2) {
+                russianTask.innerHTML = `${parts[0]}<span class="blank-space">___</span>${parts[1]}`;
+            } else {
+                russianTask.innerHTML = currentQuestion.text.replace('___', '<span class="blank-space">___</span>');
+            }
+
+            currentMissionSpan.textContent = `${currentIndex+1}/20`;
+            answered = false;
+
+            // Разблокировать кнопки
+            allButtons.forEach(btn => btn.disabled = false);
+            nextBtn.disabled = true;
+
+            // Нейтральный фидбек
+            feedbackMessage.innerHTML = '👆 Выбери слово!';
+            feedbackMessage.className = 'feedback-message';
+            feedbackHint.innerHTML = 'посмотри на подсказку внизу';
+            document.getElementById('feedbackBlock').style.backgroundColor = '#fff8e1';
+        }
+
+        // Проверка ответа
+        function checkAnswer(selected) {
+            if (answered) return;
+            answered = true;
+            allButtons.forEach(btn => btn.disabled = true);
+
+            const isCorrect = (selected === currentQuestion.correct);
+
+            // Увеличиваем общее кол-во попыток
+            stats.total++;
+            if (isCorrect) stats.correct++;
+            saveStats();
+            updateStatsUI();
+
+            // Визуальная обратная связь
+            if (isCorrect) {
+                feedbackMessage.innerHTML = '✅ Абсолютно верно! Так держать!';
+                feedbackMessage.className = 'feedback-message feedback-correct';
+                feedbackHint.innerHTML = '✔ Ты запоминаешь отлично!';
+                document.getElementById('feedbackBlock').style.backgroundColor = '#e8f5e8';
+            } else {
+                feedbackMessage.innerHTML = '❌ Ошибка! Но не беда — запоминаем.';
+                feedbackMessage.className = 'feedback-message feedback-incorrect';
+                feedbackHint.innerHTML = `Правильно: <strong style="font-size:1.5rem;">${currentQuestion.correct}</strong>. ${getHintByCorrect(currentQuestion.correct)}`;
+                document.getElementById('feedbackBlock').style.backgroundColor = '#ffebee';
+            }
+
+            // Активируем кнопку "Дальше"
+            nextBtn.disabled = false;
+        }
+
+        function getHintByCorrect(correct) {
+            const hints = {
+                'this': '(рядом, один)',
+                'that': '(далеко, один)',
+                'these': '(рядом, много)',
+                'those': '(далеко, много)'
+            };
+            return hints[correct] || '';
+        }
+
+        // Переход к следующему вопросу
+        function nextQuestion() {
+            if (currentIndex < questions.length - 1) {
+                currentIndex++;
+                displayCurrent();
+            } else {
+                // Миссия завершена
+                russianTask.innerHTML = '🎉 Молодец! Ты прошёл 20 заданий! 🎉';
+                allButtons.forEach(btn => btn.disabled = true);
+                nextBtn.disabled = true;
+                feedbackMessage.innerHTML = 'Хочешь ещё? Нажми "Сброс"';
+                feedbackHint.innerHTML = 'Можно начать заново';
+                currentMissionSpan.textContent = '20/20';
+            }
+        }
+
+        // Сброс всей игры (перемешать, начать сначала)
+        function resetGame() {
+            pickQuestions();          // новые 20
+            currentIndex = 0;
+            displayCurrent();
+            // Статистику не сбрасываем (по желанию, можно оставить)
+            // Если хочешь сброс статы — добавь вызов resetStats()
+        }
+
+        // Сброс статистики (подтверждение)
+        function resetStats() {
+            if (confirm('Обнулить статистику правильных ответов?')) {
+                stats.correct = 0;
+                stats.total = 0;
+                saveStats();
+                updateStatsUI();
+            }
+        }
+
+        // ========== СОБЫТИЯ ==========
+        btnThis.addEventListener('click', () => checkAnswer('this'));
+        btnThat.addEventListener('click', () => checkAnswer('that'));
+        btnThese.addEventListener('click', () => checkAnswer('these'));
+        btnThose.addEventListener('click', () => checkAnswer('those'));
+
+        nextBtn.addEventListener('click', nextQuestion);
+
+        resetBtn.addEventListener('click', () => {
+            resetGame();
+            // можно также спросить про статистику, но оставим как есть
+        });
+
+        // Двойной клик по счётчику сбрасывает статистику (скрытая фишка)
+        correctScoreSpan.addEventListener('dblclick', resetStats);
+
+        // Теория (модальное окно)
+        theoryBtn.addEventListener('click', () => {
+            theoryModal.classList.add('active');
+        });
+
+        closeModal.addEventListener('click', () => {
+            theoryModal.classList.remove('active');
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === theoryModal) {
+                theoryModal.classList.remove('active');
+            }
+        });
+
+        // ========== СТАРТ ==========
+        loadStats();
+        pickQuestions();
+        displayCurrent();
+    })();
+</script>
+</body>
+</html>
